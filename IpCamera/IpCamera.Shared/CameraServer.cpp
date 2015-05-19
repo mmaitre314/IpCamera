@@ -94,19 +94,22 @@ void CameraServer::StartReadingFrame()
 
     auto stream = ref new InMemoryRandomAccessStream();
 
-    create_task(camera->VideoStream->ReadAsync()).then([this, stream](MediaReaderReadResult^ result)
+    task_from_result().then([camera]()
+    {
+        return camera->VideoStream->ReadAsync();
+    }).then([this, stream](MediaReaderReadResult^ result)
     {
         if (result->EndOfStream || result->Error)
         {
             Trace("@%p stopping streaming: EndOfStream %i, Error %i", (void*)this, result->EndOfStream, result->Error);
-            return;
+            return task_from_result();
         }
 
         if (result->Sample == nullptr)
         {
             Trace("@%p null sample received, trying to read another frame", (void*)this);
             StartReadingFrame();
-            return;
+            return task_from_result();
         }
 
         auto frame = safe_cast<MediaSample2D^>(result->Sample);
@@ -117,7 +120,7 @@ void CameraServer::StartReadingFrame()
             (int)(frame->Duration.Duration / 10000)
             );
 
-        create_task(ImageEncoder::SaveToStreamAsync(frame, stream, ImageCompression::Jpeg)).then([this, stream]
+        return create_task(ImageEncoder::SaveToStreamAsync(frame, stream, ImageCompression::Jpeg)).then([this, stream]
         {
             Trace("@%p frame encoded into JPEG stream of length %iB", (void*)this, (int)stream->Size);
 
@@ -131,7 +134,18 @@ void CameraServer::StartReadingFrame()
             DispatchHttpPart(buffer);
             StartReadingFrame();
         });
+    }).then([this](task<void> t)
+    {
+        try
+        {
+            t.get();
+        }
+        catch (Exception^ e)
+        {
+            this->Failed(this, ref new CameraServerFailedEventArgs(e));
+        }
     });
+
 }
 
 IBuffer^ CameraServer::CreateHttpPartFromJpegBuffer(_In_ IBuffer^ buffer)

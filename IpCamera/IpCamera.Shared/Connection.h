@@ -9,6 +9,8 @@ public:
 
     void NotifyNewHttpPart(_In_ Windows::Storage::Streams::IBuffer^ buffer);
 
+    void Close();
+
 private:
 
     Connection(const Connection&) = delete;

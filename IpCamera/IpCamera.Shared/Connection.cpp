@@ -2,6 +2,7 @@
 #include "Connection.h"
 
 using namespace concurrency;
+using namespace Platform;
 using namespace Windows::Networking::Sockets;
 using namespace Windows::Storage::Streams;
 
@@ -23,8 +24,11 @@ Connection::Connection(_In_ StreamSocket^ socket)
 {
     NT_ASSERT(socket != nullptr);
 
-    auto requestBuffer = ref new Buffer(4096);
-    create_task(socket->InputStream->ReadAsync(requestBuffer, requestBuffer->Capacity, InputStreamOptions::Partial)).then([this, socket](IBuffer^)
+    task_from_result().then([socket]()
+    {
+        auto requestBuffer = ref new Buffer(4096);
+        return socket->InputStream->ReadAsync(requestBuffer, requestBuffer->Capacity, InputStreamOptions::Partial);
+    }).then([this, socket](IBuffer^)
     {
         Trace("@%p received HTTP request from socket @%p", (void*)this, (void*)m_socket);
 
@@ -35,20 +39,35 @@ Connection::Connection(_In_ StreamSocket^ socket)
         Trace("@%p sending HTTP response header to socket @%p: %iB", (void*)this, (void*)m_socket, responseHeaderBuffer->Length);
 
         return socket->OutputStream->WriteAsync(responseHeaderBuffer);
-    }).then([this, socket](unsigned int written)
+    }).then([this, socket](unsigned int)
     {
         return socket->OutputStream->FlushAsync();
-    }).then([this](bool flushed)
+    }).then([this](bool)
     {
         auto lock = m_lock.LockExclusive();
         if (!m_closed)
         {
             m_acceptingData = true;
         }
+    }).then([this](task<void> t)
+    {
+        try
+        {
+            t.get();
+        }
+        catch (...)
+        {
+            this->Close();
+        }
     });
 }
 
 Connection::~Connection()
+{
+    delete m_socket; // calls IClosable::Close()
+}
+
+void Connection::Close()
 {
     auto lock = m_lock.LockExclusive();
 
@@ -75,7 +94,10 @@ void Connection::NotifyNewHttpPart(_In_ IBuffer^ buffer)
         stream = m_socket->OutputStream;
     }
 
-    create_task(stream->WriteAsync(buffer)).then([this, stream](unsigned int)
+    task_from_result().then([stream, buffer]()
+    {
+        return stream->WriteAsync(buffer);
+    }).then([this, stream](unsigned int)
     {
         return stream->FlushAsync();
     }).then([this, buffer](bool)
@@ -86,6 +108,16 @@ void Connection::NotifyNewHttpPart(_In_ IBuffer^ buffer)
         if (!m_closed)
         {
             m_acceptingData = true;
+        }
+    }).then([this](task<void> t)
+    {
+        try
+        {
+            t.get();
+        }
+        catch (...)
+        {
+            this->Close();
         }
     });
 }

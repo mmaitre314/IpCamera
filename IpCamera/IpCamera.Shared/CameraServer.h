@@ -2,6 +2,27 @@
 
 namespace IpCamera
 {
+    public ref class CameraServerFailedEventArgs sealed
+    {
+    public:
+
+        property int ErrorCode { int get(){ return m_errorCode; } }
+        property Platform::String^ Message { Platform::String^ get(){ return m_message; } }
+
+    internal:
+
+        CameraServerFailedEventArgs(_In_ Platform::Exception^ e)
+            : m_errorCode(e->HResult)
+            , m_message(e->Message)
+        {
+        }
+
+    private:
+
+        int m_errorCode;
+        Platform::String^ m_message;
+    };
+
     public ref class CameraServer sealed
     {
     public:
@@ -16,6 +37,8 @@ namespace IpCamera
 
         // IClosable
         virtual ~CameraServer();
+
+        event Windows::Foundation::TypedEventHandler<Platform::Object^, CameraServerFailedEventArgs^>^ Failed;
 
     private:
 
