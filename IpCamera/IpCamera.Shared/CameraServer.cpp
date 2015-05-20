@@ -14,34 +14,52 @@ using namespace Windows::Storage::Streams;
 
 IAsyncOperation<CameraServer^>^ CameraServer::CreateAsync(int port)
 {
-    auto server = ref new CameraServer();
+    Trace("@ creating CameraServer on port %i", port);
 
-    Trace("@%p creating CameraServer on port %i", (void*)server, port);
-
-    return create_async([server, port]()
+    return create_async([port]()
     {
         auto settings = ref new MediaCaptureInitializationSettings();
         settings->StreamingCaptureMode = StreamingCaptureMode::Video;
 
         Agile<MediaCapture> capture(ref new MediaCapture());
-        return create_task(capture->InitializeAsync(settings)).then([capture]
+        return create_task(capture->InitializeAsync(settings)).then([capture, port]
         {
-            return MediaReader::CreateFromMediaCaptureAsync(
+            return CreateFromMediaCaptureAsync(port, capture.Get());
+        });
+    });
+}
+
+IAsyncOperation<CameraServer^>^ CameraServer::CreateFromMediaCaptureAsync(int port, MediaCapture^ camera)
+{
+    CHKNULL(camera);
+
+    auto server = ref new CameraServer();
+
+    Trace("@%p creating CameraServer on port %i with camera @%p", (void*)server, port, camera);
+
+    Agile<MediaCapture> capture(camera);
+    return create_async([server, capture, port]()
+    {
+        return create_task(MediaReader::CreateFromMediaCaptureAsync(
                 capture.Get(),
                 AudioInitialization::Deselected,
                 VideoInitialization::Nv12
-                );
-        }).then([server, port](MediaReader^ reader)
+                )).then([server, port](MediaReader^ reader)
         {
             Trace("@%p created MediaReader @%p", (void*)server, (void*)reader);
             server->m_camera = reader;
 
             server->StartReadingFrame();
 
-            return server->m_listener->BindServiceNameAsync(port.ToString());
-        }).then([server, port]()
+            return server->m_listener->BindServiceNameAsync(port == 0 ? L"" : port.ToString());
+        }).then([server]()
         {
-            Trace("@%p bound socket listener to port %S", (void*)server, server->m_listener->Information->LocalPort->Data());
+            server->m_port = _wtoi(server->m_listener->Information->LocalPort->Data());
+            if (server->m_port == 0)
+            {
+                throw ref new InvalidArgumentException(L"Failed to convert TCP port");
+            }
+            Trace("@%p bound socket listener to port %i", (void*)server, server->m_port);
             return server;
         });
     });
@@ -49,8 +67,9 @@ IAsyncOperation<CameraServer^>^ CameraServer::CreateAsync(int port)
 
 CameraServer::CameraServer()
     : m_listener(ref new StreamSocketListener())
+    , m_port(-1)
 {
-    m_connectionReceivedToken = m_listener->ConnectionReceived += 
+    m_listener->ConnectionReceived += 
         ref new TypedEventHandler<StreamSocketListener^, StreamSocketListenerConnectionReceivedEventArgs^>(
         this, 
         &CameraServer::OnConnectionReceived
@@ -63,7 +82,8 @@ CameraServer::~CameraServer()
 
     m_connections.clear();
 
-    m_listener->ConnectionReceived -= m_connectionReceivedToken;
+    // Don't remove the m_listener->ConnectionReceived event handler here: it throws
+
     delete m_listener; // calls IClosable::Close()
     m_listener = nullptr;
 
@@ -74,6 +94,10 @@ CameraServer::~CameraServer()
 void CameraServer::OnConnectionReceived(_In_ StreamSocketListener^ sender, _In_ StreamSocketListenerConnectionReceivedEventArgs^ e)
 {
     auto lock = m_lock.LockExclusive();
+    if (__abi_disposed)
+    {
+        return;
+    }
 
     Trace("@%p new connection received: socket @%p", (void*)this, (void*)e->Socket);
 
@@ -85,7 +109,7 @@ void CameraServer::StartReadingFrame()
     MediaReader^ camera;
     {
         auto lock = m_lock.LockExclusive();
-        if (m_camera == nullptr)
+        if (__abi_disposed)
         {
             return;
         }
@@ -163,16 +187,20 @@ IBuffer^ CameraServer::CreateHttpPartFromJpegBuffer(_In_ IBuffer^ buffer)
     (void)memcpy(data + partHeader.str().length(), GetData(buffer), buffer->Length);
     (void)memcpy(data + partHeader.str().length() + buffer->Length, partFooter, sizeof(partFooter) - 1);
 
-    Trace("@%p created HTTP part @%p of length %iB", (void*)this, (void*)part, part->Length);
+    Trace("@ created HTTP part @%p of length %iB", (void*)part, part->Length);
 
     return part;
 }
 
 void CameraServer::DispatchHttpPart(_In_ IBuffer^ buffer)
 {
-    Trace("@%p dispatching HTTP part @%p", (void*)this, (void*)buffer);
-
     auto lock = m_lock.LockExclusive();
+    if (__abi_disposed)
+    {
+        return;
+    }
+
+    Trace("@%p dispatching HTTP part @%p", (void*)this, (void*)buffer);
 
     for (unique_ptr<Connection>& connection : m_connections)
     {
