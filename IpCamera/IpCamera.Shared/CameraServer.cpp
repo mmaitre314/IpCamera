@@ -6,9 +6,12 @@ using namespace concurrency;
 using namespace IpCamera;
 using namespace MediaCaptureReader;
 using namespace Platform;
+using namespace Platform::Collections;
 using namespace std;
 using namespace Windows::Foundation;
 using namespace Windows::Media::Capture;
+using namespace Windows::Networking;
+using namespace Windows::Networking::Connectivity;
 using namespace Windows::Networking::Sockets;
 using namespace Windows::Storage::Streams;
 
@@ -60,6 +63,18 @@ IAsyncOperation<CameraServer^>^ CameraServer::CreateFromMediaCaptureAsync(int po
                 throw ref new InvalidArgumentException(L"Failed to convert TCP port");
             }
             Trace("@%p bound socket listener to port %i", (void*)server, server->m_port);
+
+            auto ipAddresses = ref new Vector<IPAddress^>();
+            for (HostName^ host : NetworkInformation::GetHostNames())
+            {
+                if ((host->Type == HostNameType::Ipv4) || (host->Type == HostNameType::Ipv6))
+                {
+                    Trace("@%p network IP %S %S", (void*)server, host->Type.ToString()->Data(), host->CanonicalName->Data());
+                    ipAddresses->Append(ref new IPAddress(host->Type, host->CanonicalName));
+                }
+            }
+            server->m_ipAddresses = ipAddresses->GetView();
+
             return server;
         });
     });

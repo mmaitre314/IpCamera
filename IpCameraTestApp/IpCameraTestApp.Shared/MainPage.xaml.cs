@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -34,8 +35,15 @@ namespace IpCameraTestApp
             // Start the camera and open a HTTP listener on port 31415
             m_server = await CameraServer.CreateAsync(31415);
 
+            foreach (IPAddress ip in m_server.IPAddresses)
+            {
+                Log.Text += String.Format("Server IP address: {0} {1}\n", ip.Type.ToString(), ip.Name);
+            }
+
             // Start an HTTP client, connect to port 31415, and display the video
             var client = await HttpMjpegCaptureSource.CreateFromUriAsync("http://localhost:31415/");
+
+            Source.KeyUp += Source_KeyUp;
 
             // Log video playback events
             Preview.MediaFailed += Preview_MediaFailed;
@@ -45,6 +53,25 @@ namespace IpCameraTestApp
 
             // Start playback
             Preview.SetMediaStreamSource(client.Source);
+        }
+
+        async void Source_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key != VirtualKey.Enter)
+            {
+                return;
+            }
+
+            Log.Text += String.Format("Opening {0}\n", Source.Text);
+            try
+            {
+                var client = await HttpMjpegCaptureSource.CreateFromUriAsync(Source.Text);
+                Preview.SetMediaStreamSource(client.Source);
+            }
+            catch
+            {
+                Log.Text += " Failed to initiate MJPEG camera playback\n";
+            }
         }
 
         void Preview_CurrentStateChanged(object sender, RoutedEventArgs e)
@@ -64,7 +91,7 @@ namespace IpCameraTestApp
 
         void Preview_MediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
-            Log.Text += "Preview_MediaFailed\n";
+            Log.Text += String.Format("Preview_MediaFailed: {0}\n", e.ErrorMessage);
         }
     }
 }

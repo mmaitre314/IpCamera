@@ -23,6 +23,27 @@ namespace IpCamera
         Platform::String^ m_message;
     };
 
+    public ref class IPAddress sealed
+    {
+    public:
+
+        property Windows::Networking::HostNameType Type { Windows::Networking::HostNameType get(){ return m_type; } }
+        property Platform::String^ Name { Platform::String^ get(){ return m_name; } }
+
+    internal:
+
+        IPAddress(_In_ Windows::Networking::HostNameType type, _In_ Platform::String^ name)
+            : m_name(name)
+            , m_type(type)
+        {
+        }
+
+    private:
+
+        Windows::Networking::HostNameType m_type;
+        Platform::String^ m_name;
+    };
+
     public ref class CameraServer sealed
     {
     public:
@@ -78,6 +99,13 @@ namespace IpCamera
         ///<summary>Raised when the CameraServer object becomes non-functional</summary>
         event Windows::Foundation::TypedEventHandler<Platform::Object^, CameraServerFailedEventArgs^>^ Failed;
 
+        ///<summary>IP addresses CameraServer is listening on</summary>
+        ///<remarks>IP addresses are either IPv4 or IPv6</remarks>
+        property Windows::Foundation::Collections::IVectorView<IPAddress^>^ IPAddresses
+        { 
+            Windows::Foundation::Collections::IVectorView<IPAddress^>^ get() { return m_ipAddresses; }
+        }
+
         ///<summary>TCP port CameraServer is listening on</summary>
         property int Port { int get() { return m_port; } }
         
@@ -98,6 +126,7 @@ namespace IpCamera
         Windows::Networking::Sockets::StreamSocketListener^ m_listener;
         MediaCaptureReader::MediaReader^ m_camera;
         std::list<std::unique_ptr<Connection>> m_connections;
+        Windows::Foundation::Collections::IVectorView<IPAddress^>^ m_ipAddresses;
         int m_port;
 
         Microsoft::WRL::Wrappers::SRWLock m_lock;
