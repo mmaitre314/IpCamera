@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>MMaitre.IpCamera.Symbols</id>
+    <title>IP Camera</title>
+    <version>$NuGetVersion$</version>
+    <authors>Matthieu Maitre</authors>
+    <owners>Matthieu Maitre</owners>
+    <licenseUrl>https://raw.githubusercontent.com/mmaitre314/IpCamera/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/mmaitre314/IpCamera</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>An MJPEG network camera client and server for Windows/Windows Phone 8.1 Store apps.</summary>
+    <description>An MJPEG network camera client and server for Windows/Windows Phone 8.1 Store apps.</description>
+    <releaseNotes>Initial release</releaseNotes>
+    <copyright>Copyright © 2015, Matthieu Maitre. All rights reserved.</copyright>
+    <tags>Native WinRT MediaCapture MJPEG Camera</tags>
+  </metadata>
+  <files>
+    <!-- symbols -->
+    <file src="Win32\Release\IpCamera.Windows\IpCamera.Windows.pdb" target="lib\Windows\x86\" />
+    <file src="x64\Release\IpCamera.Windows\IpCamera.Windows.pdb" target="lib\Windows\x64\" />
+    <file src="ARM\Release\IpCamera.Windows\IpCamera.Windows.pdb" target="lib\Windows\Arm\" />
+    <file src="Win32\Release\IpCamera.WindowsPhone\IpCamera.WindowsPhone.pdb" target="lib\WindowsPhone\x86\" />
+    <file src="ARM\Release\IpCamera.WindowsPhone\IpCamera.WindowsPhone.pdb" target="lib\WindowsPhone\Arm\" />
+
+    <!-- source -->
+    <file src="..\IpCamera\**\*.cs" target="src\" />
+    <file src="..\IpCamera\**\*.cpp" target="src\" />
+    <file src="..\IpCamera\**\*.h"   target="src\" />
+  </files>
+</package>
+

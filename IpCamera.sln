@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IpCameraTestApp.WindowsPhon
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTestsCx.Windows", "UnitTestsCx.Windows\UnitTestsCx.Windows.vcxproj", "{016C012B-A46C-4774-8CE4-BA638B1B622E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Package", "Package\Package.vcxproj", "{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		IpCamera\IpCamera.Shared\IpCamera.Shared.vcxitems*{f0b0ebaf-3f2c-4477-9838-4b3f5ecee0ab}*SharedItemsImports = 4
@@ -139,6 +141,18 @@ Global
 		{016C012B-A46C-4774-8CE4-BA638B1B622E}.Release|x86.ActiveCfg = Release|Win32
 		{016C012B-A46C-4774-8CE4-BA638B1B622E}.Release|x86.Build.0 = Release|Win32
 		{016C012B-A46C-4774-8CE4-BA638B1B622E}.Release|x86.Deploy.0 = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Debug|ARM.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Debug|Win32.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Debug|Win32.Build.0 = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Debug|x64.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Debug|x86.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Debug|x86.Build.0 = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Release|ARM.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Release|Win32.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Release|Win32.Build.0 = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Release|x64.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Release|x86.ActiveCfg = Release|Win32
+		{C69D2B9D-A33D-4A05-8E48-D4785E1FC572}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

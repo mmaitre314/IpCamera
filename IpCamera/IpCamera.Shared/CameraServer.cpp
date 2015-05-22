@@ -194,7 +194,7 @@ IBuffer^ CameraServer::CreateHttpPartFromJpegBuffer(_In_ IBuffer^ buffer)
 
     const char partFooter[] = "\r\n--CameraServerBoundary\r\n";
 
-    auto part = ref new Buffer(partHeader.str().length() + buffer->Length + sizeof(partFooter) - 1);
+    auto part = ref new Buffer((unsigned int)(partHeader.str().length() + buffer->Length + sizeof(partFooter) - 1));
     part->Length = part->Capacity;
 
     unsigned char *data = GetData(part);
