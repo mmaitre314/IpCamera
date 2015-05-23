@@ -1,8 +1,10 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/7ucks5y2hqo7mphg?svg=true)](https://ci.appveyor.com/project/mmaitre314/IpCamera)
 [![NuGet package](http://mmaitre314.github.io/images/nuget.png)](https://www.nuget.org/packages/MMaitre.IpCamera/)
 
-An API to start an HTTP server and stream the video from a camera on the local machine over a network in MJPEG format. 
+IP Camera
+=========
 
+`CameraServer` starts an HTTP server and streams the video from a camera on the local machine over a network in MJPEG format. 
 ```c#
 // Start the camera and open an HTTP listener on port 31415
 var server = await CameraServer.CreateAsync(31415);
