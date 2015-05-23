@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Ipcamera by mmaitre314</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/mmaitre314/IpCamera">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/mmaitre314/IpCamera/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/mmaitre314/IpCamera/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Ipcamera</h1>
+          <p>MJPEG Network Camera Server for Windows/Windows Phone 8.1 Store apps</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/mmaitre314">mmaitre314</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <p><a href="https://ci.appveyor.com/project/mmaitre314/IpCamera"><img src="https://ci.appveyor.com/api/projects/status/7ucks5y2hqo7mphg?svg=true" alt="Build status"></a>
+<a href="https://www.nuget.org/packages/MMaitre.IpCamera/"><img src="http://mmaitre314.github.io/images/nuget.png" alt="NuGet package"></a></p>
+
+<p>An API to stream video from cameras on Windows and Windows Phone devices (and probably to any HTTP MJPEG video player).</p>
+
+<p><img src="http://mmaitre314.github.io/images/IpCamera.jpg" alt="IpCamera"></p>
+
+<p><code>CameraServer</code> starts an HTTP server and streams the video from a camera on the local machine over a network in MJPEG format. </p>
+
+<div class="highlight highlight-c#"><pre><span class="pl-c">// Start the camera and open an HTTP listener on port 31415</span>
+<span class="pl-k">var</span> server = <span class="pl-k">await</span> CameraServer.CreateAsync(<span class="pl-c1">31415</span>);</pre></div>
+
+<p>The server supports multiple clients connected at the same time.</p>
+
+<p>Using the <a href="http://www.nuget.org/packages/MMaitre.MediaCaptureReader/">MediaCaptureReader</a> NuGet package client apps can display the video by creating an <code>HttpMjpegCaptureSource</code> and connecting it to <code>MediaElement</code>.</p>
+
+<div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">MediaElement</span> <span class="pl-e">Name</span>=<span class="pl-s"><span class="pl-pds">"</span>Preview<span class="pl-pds">"</span></span> <span class="pl-e">AutoPlay</span>=<span class="pl-s"><span class="pl-pds">"</span>True<span class="pl-pds">"</span></span> <span class="pl-e">RealTimePlayback</span>=<span class="pl-s"><span class="pl-pds">"</span>True<span class="pl-pds">"</span></span>/&gt;</pre></div>
+
+<div class="highlight highlight-c#"><pre><span class="pl-c">// Start an HTTP client, connect to port 31415, and display the video</span>
+<span class="pl-k">var</span> client = <span class="pl-k">await</span> HttpMjpegCaptureSource.CreateFromUriAsync(<span class="pl-s"><span class="pl-pds">"</span>http://localhost:31415/<span class="pl-pds">"</span></span>);
+
+<span class="pl-c">// Start playback</span>
+Preview.SetMediaStreamSource(client.Source);</pre></div>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
