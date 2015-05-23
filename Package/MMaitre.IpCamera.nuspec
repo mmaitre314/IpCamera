@@ -11,9 +11,12 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>An MJPEG network camera client and server for Windows/Windows Phone 8.1 Store apps.</summary>
     <description>An MJPEG network camera client and server for Windows/Windows Phone 8.1 Store apps.</description>
-    <releaseNotes>Initial release</releaseNotes>
+    <releaseNotes>Fix missing dependency on MMaitre.MediaCaptureReader</releaseNotes>
     <copyright>Copyright © 2015, Matthieu Maitre. All rights reserved.</copyright>
     <tags>Native WinRT MediaCapture MJPEG Camera</tags>
+    <dependencies>
+      <dependency id="MMaitre.MediaCaptureReader" version="2.1.3" />
+    </dependencies>
   </metadata>
   <files>
     <!-- implementation -->
