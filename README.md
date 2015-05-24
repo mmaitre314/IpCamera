@@ -1,5 +1,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/7ucks5y2hqo7mphg?svg=true)](https://ci.appveyor.com/project/mmaitre314/IpCamera)
 [![NuGet package](http://mmaitre314.github.io/images/nuget.png)](https://www.nuget.org/packages/MMaitre.IpCamera/)
+[![Symbols](http://mmaitre314.github.io/images/Symbols.png)](http://mmaitre314.github.io/2015/05/24/personal-pdb-symbol-server.html)
 
 IP Camera
 =========
